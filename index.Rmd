@@ -1,0 +1,1256 @@
+---
+title: "R en RRHH"
+author: "Sergio Garcia Mora"
+institute: "Secretaría de Extensión - Facultad de Ciencias Sociales - UBA"
+date: "30/04/2021"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    seal: false
+    css: [default, shinobi, tamu-fonts]
+    nature:
+      ratio: "16:9"
+      highlightStyle: github
+      highlightLines: true
+---
+class: inverse, top, center
+background-image: url(Archivos/portada.png)
+background-size: cover
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(fig.retina = 3, warning = FALSE, message = FALSE)
+```
+
+---
+
+```{r metathis, echo=FALSE}
+library(metathis)
+meta() %>%
+  meta_name("github-repo" = "https://github.com/chechoid/uba-fsoc-iadgt") %>% 
+  meta_social(
+    title = "R en RRHH",
+    description = paste(
+      "Una introducción al lenguaje R y las oportunidades que ofrece para RRHH para el análisis de datos y la automatización de los procesos.",
+      "Desarrollada por Sergio Garcia Mora."
+    ),
+    url = "http://bit.ly/paw21-es-r4hr",
+    image = "https://github.com/chechoid/paw21-coding-in-r-live-to-tell/blob/main/Archivos/portada.png",
+    image_alt = paste(
+      "R en RRHH", 
+      "Curso Introducción al Análisis de Datos para la Gestión del Talento", 
+      "Autor: Sergio Garcia Mora | Pablo Senra"
+    ),
+    og_type = "website",
+    og_author = "Sergio Garcia Mora",
+    twitter_card_type = "summary_large_image",
+    twitter_creator = "@sergiogarciamor",
+    twitter_site = "@data4hr"
+  )
+```
+
+---
+
+class: inverse, center, middle
+
+# ¿Qué es R?
+
+---
+# ¿Qué es R?
+
+**R** es un lenguaje de código abierto, que se lo conoce inicialmente como un lenguaje de análisis estadístico.
+
+--
+
+Hoy en día, y gracias a la comunidad de desarrolladores quienes expandieron sus capacidades, se puede usar R para muchas cosas más.
+
+--
+
+En R podés trabajar con cualquier tipo de datos, y hacer todo tipo de análisis que se te ocurra.
+
+---
+class: inverse, center, middle
+# ¿Qué cosas se pueden hacer en R?
+
+---
+## Análisis Predictivos
+
+.pull-left[
+`r emo::ji("crystal")` Un caso de uso bien conocido es para poder realizar *análisis predictivos*, por ejemplo para predecir las renuncias de los empleados.
+
+```{r pred1, echo=FALSE}
+library(tidyverse)
+library(caret) 
+# Cargo los datos desde un repositorio de github
+datos_rh <- read_csv("https://raw.githubusercontent.com/mlambolla/Analytics_HR_Attrition/master/HR_comma_sep.csv")
+
+# Elminamos la variable 'sales' y cambiemos los valores de 'salary' a numéricos.
+datos_rh <- datos_rh %>% 
+  select(-sales) %>%
+  mutate(salary = as.numeric(case_when(
+    salary == 'low' ~ 0,
+    salary == 'medium' ~ 1,
+    salary == 'high' ~ 2
+  )))
+
+# Defino una semilla para poder replicar los resultados
+set.seed(234)
+
+# Parto el índice para dividir el dataset en training y test
+modelo_hr <- createDataPartition(y = datos_rh$left, p = 0.7,
+                                 list = FALSE)
+
+# Armo el dataframe de training [fila, columna]
+modelo_hr_train <- datos_rh[modelo_hr,]
+
+# Con el signo - (menos), creamos el dataset de testing, con todas las filas 'que no estén en modelo_hr'
+modelo_hr_test <- datos_rh[-modelo_hr,]
+
+# Creamos el modelo con el dataframe de training
+modelo_glm2 <- glm(left ~. , family = "binomial",
+                   data = modelo_hr_train)
+
+# Entreno el modelo - Calculo las probabilidades en los datos de entrenamiento
+pred_train <- predict(modelo_glm2, newdata = modelo_hr_train, type = "response")
+
+# Luego aplica esos cálculos en el dataset de test
+pred_test <- predict(modelo_glm2, newdata = modelo_hr_test, type = "response")
+
+# Asigna las probabilidades a una variable nueva llamada "score".
+modelo_hr_test$score <- pred_test
+
+# Luego en base al score, asigno una clase predicha en función a si la probabilidad es mayor a 0.5
+modelo_hr_test <- modelo_hr_test %>% 
+  mutate(prediccion = ifelse(score > 0.5, 1, 0))
+
+# Creo la matriz de confusión
+conf_matrix <- table(modelo_hr_test$prediccion, modelo_hr_test$left)
+
+# Decision trees ----
+# Árbol de Decisión
+library(rpart)
+
+# Creo los datasets de training y de test
+arbol_hr_train <- rpart(left ~., data = modelo_hr_train, method = "class")
+arbol_hr_test <- predict(arbol_hr_train, newdata = modelo_hr_test)
+
+#Agrego los resultados del modelo a los datos de test
+modelo_hr_test$score_arbol <- arbol_hr_test[,2]
+modelo_hr_test <- modelo_hr_test %>% 
+  mutate(prediccion_arbol = ifelse(score_arbol > 0.5, 1, 0))
+# Create a confusion matrix
+# Creamos la matriz de confusión.
+conf_matrix_arbol <- table(modelo_hr_test$prediccion_arbol, modelo_hr_test$left)
+```
+
+]
+.pull-right[
+```{r pred2, echo=FALSE, fig.show='hold'}
+library(pROC)
+
+# Grafico las curvas ROC para la regresión logística y el árbol de decisión
+rocobj1 <- plot.roc(modelo_hr_test$left, modelo_hr_test$score,
+                    main="Curva ROC",percent=TRUE, col="#1c61b6")
+rocobj2 <- lines.roc(modelo_hr_test$left, modelo_hr_test$score_arbol,
+                     percent=TRUE, col="#008600")
+testobj <- roc.test(rocobj1, rocobj2)
+legend("bottomright", legend=c("Regresión Logística", "Árbol de Decisión"), 
+       col=c("#1c61b6", "#008600"), lwd=2)
+```
+
+
+]
+---
+## Cluster Analysis
+
+.pull-left[
+
+```{r clus1, echo = FALSE}
+# Scatter Plot of Satisfaction and Performance Levels
+ggplot(datos_rh, aes(x = last_evaluation, y = satisfaction_level, color = factor(left)))+
+  geom_point(alpha = 0.8)+
+  scale_color_manual(values = c("#BFC9CA","#2874A6"))+
+  labs(title = "Niveles de Desempeño y de Satisfacción",
+       subtitle = "0 = Empleados Activos, 1 = Renuncias",
+       x= "Desempeño",
+       y= "Satisfacción",
+       color = "Estado del \nEmpleado")
+```
+]
+
+--
+
+.pull-right[
+```{r clus2, echo=FALSE}
+# Seleccionamos las variables para elegir los clusters
+variables_cluster <- modelo_hr_test %>%
+  select(last_evaluation, satisfaction_level)
+
+# Preparo los datos para hacer el cálculo
+vc <- scale(variables_cluster)
+
+# Corro el algoritmo de clustering k-means  
+fit_vc <- kmeans(vc, 3)
+
+# Agrego los clusters ajustados (calculados) al dataset
+modelo_hr_test$cluster <- fit_vc$cluster
+
+library(ggthemes)
+
+# Gráfico de clusters
+ggplot(modelo_hr_test, aes(x = last_evaluation, y = satisfaction_level, color = factor(cluster)))+
+  geom_point(alpha = 0.8)+
+  scale_color_colorblind()+
+  labs(title = "Clusters de Empleados según Desempeño y Satisfacción",
+       subtitle = "Clusters definidos mediante el algoritmo de k-means",
+       x= "Desempeño",
+       y= "Satisfacción",
+       color = "Cluster") +
+  theme_light()
+```
+
+]
+---
+## Organizational Network Analysis
+
+.pull-left[
+```{r ona, echo=FALSE}
+library(igraph)
+library(readr)
+library(visNetwork)
+library(networkD3)
+
+# Datos -------
+contactos <- read_delim("data/contactos.csv", delim = ";")
+
+data_scientist <- contactos %>% 
+  filter(str_detect(Position, "data.scientist")|str_detect(Position, "data.analyst|analytics"))
+origen <- data_scientist %>% 
+  distinct(Origen) %>% 
+  rename(label=Origen)
+contacto <- data_scientist %>% 
+  distinct(nombre_apellido) %>% 
+  rename(label=nombre_apellido)
+nodes <- full_join(origen, contacto, by = "label")
+nodes <- nodes %>% rowid_to_column("id")
+conexion <- data_scientist %>% 
+  group_by(Origen, nombre_apellido) %>% 
+  summarise(peso = n()) %>% 
+  ungroup()
+
+aristas <- conexion %>% 
+  left_join(nodes, by = c("Origen" = "label")) %>% 
+  rename(from = id)
+
+aristas <- aristas %>% 
+  left_join(nodes, by = c("nombre_apellido" = "label")) %>% 
+  rename(to = id)
+
+aristas <- select(aristas, from, to, peso)
+
+edges <- mutate(aristas, width = peso/5 + 1)
+
+nodes$color <- c(rep("#DD6B06", 3), rep("#2CAFBB", 261))
+
+referidos <- visNetwork(nodes, aristas) %>% 
+  visIgraphLayout(layout = "layout_with_fr") %>% 
+    visNodes(color = list(background = "#5DBAC3",
+                        border = "#01636D")) %>% 
+  visEdges(color = list(color = "grey", highlight = "#014D54" )) %>% 
+  visOptions(highlightNearest = TRUE)
+
+referidos
+```
+
+]
+
+.pull-right[
+
+Se pueden hacer análisis de grafos para desarrollar proyectos de Organizational Network Analysis.
+
+En este sencillo ejemplo, estamos analizando las conecciones de LinkedIn de 3 profesores de People Analytics, para detectar los Data Scientists que tenemos en común. Este análisis se puede usar para desarrollar un programa de referidos. `r emo::ji("exploding_head")`
+
+]
+
+---
+## Text Mining
+
+Se puede analizar el texto de encuestas, curriculum vitaes, y opiniones de sitios como Glassdoor. Este es un ejemplo de una encuesta sobre Home Office del año pasado.
+
+.pull-left[
+```{r tm1, echo=FALSE, out.width="70%"}
+library(reshape2)
+library(googlesheets4)
+library(gargle)
+
+EncuestaHomeOffice <- sheets_read("1g2q3c_MMrBc4MehO4Yjktpu2fk7s7M8Bn2wIgV6yQHo")
+EncuestaHomeOffice <- EncuestaHomeOffice %>% 
+  select("¿Creés que va a cambiar la forma de trabajar después de esta crisis?",
+         "Justifica la respuesta")
+
+#### Limpieza de Datos ####
+
+# Cambio los nombres de las variables para hacerlo más manejable
+hos <- EncuestaHomeOffice %>%
+  rename("Cambios_Futuros" = "¿Creés que va a cambiar la forma de trabajar después de esta crisis?",
+         "Comentarios" = "Justifica la respuesta")
+
+# Text Mining 
+# Fuente: http://www.aic.uva.es/cuentapalabras/palabras-vacias.html
+
+library(tidytext)
+library(wordcloud2)
+
+zx <- theme(panel.background = element_blank(),
+            panel.grid.major.x = element_line(colour = "#F4F6F6"),
+            axis.line = element_line(colour = "grey"))
+
+eho_text <- hos %>%
+  select(Cambios_Futuros, Comentarios) %>%
+  filter(!is.na(Comentarios)) %>%
+  mutate(Comentarios = as.character(Comentarios))
+
+eho_text_pal <- eho_text %>%
+  unnest_tokens(palabra, Comentarios)
+
+# Un lexicon más exhaustivo y detallado
+vacias <- read_csv("https://raw.githubusercontent.com/7PartidasDigital/AnaText/master/datos/diccionarios/vacias.txt",
+                   locale = default_locale())
+
+# Hacer un anti_join para eliminar las palabras del corpus que están en el listado del lexicon
+eho_text_vacio <- eho_text_pal %>%
+  anti_join(vacias)
+
+# Si quiero armar un listado específico de palabras para eliminar del análisis, luego uso un anti_join
+vacias_adhoc <- tibble(palabra = c("trabajo", "home", "office", "van", "va"))
+
+# Hay varias palabras que se repiten y que no aportan mucho valor así que las elimino.
+eho_text_vacio <- eho_text_vacio %>%
+  anti_join(vacias_adhoc)
+
+# Ordeno los comentarios en base a la variable "Cambios_Futuros"
+library(forcats)
+
+eho_text_vacio$Cambios_Futuros <- fct_relevel(eho_text_vacio$Cambios_Futuros, "Sí", "Tal vez", "No")
+
+# Lexicon de sentimientos
+sentimientos <- read_tsv("https://raw.githubusercontent.com/7PartidasDigital/AnaText/master/datos/diccionarios/sentimientos_2.txt",
+                         col_types = "cccn",
+                         locale = default_locale())
+
+# Modificación de la función get_sentiments de tidyverse
+source("https://raw.githubusercontent.com/7PartidasDigital/R-LINHD-18/master/get_sentiments.R")
+
+## Análisis General
+eho_text_nrc <- eho_text_vacio %>%
+  right_join(get_sentiments("nrc")) %>%
+  filter(!is.na(sentimiento)) %>%
+  count(sentimiento, sort = TRUE)
+
+feelings <- c("negativo", "positivo", "negativo", "negativo", "negativo", "positivo", "positivo", "positivo")
+
+eho_text_nrc %>%
+  filter(sentimiento != "negativo", sentimiento !="positivo") %>%
+  cbind(feelings) %>%
+  ggplot(aes(reorder(sentimiento, n), n, fill = feelings)) +
+  geom_bar(stat = "identity", show.legend = FALSE) +
+  scale_fill_manual(values = c("#F5B041","#5DADE2"))+
+  zx +
+  coord_flip() +
+  labs(title="Análisis de Sentimiento",
+       caption = "Datos propios: Encuesta de Home Office 2020",
+       x = "Sentimiento",
+       y = "Frecuencia")
+```
+]
+
+.pull-right[
+```{r tm2, echo=FALSE, out.width="70%"}
+library(wordcloud2)
+library(webshot)
+eho_text_vacio %>%
+  filter(Cambios_Futuros == "Sí") %>%
+  count(palabra, sort = TRUE) %>%
+  filter(n >=3) %>% 
+  ungroup() %>%
+  wordcloud2( size = 0.6, color = rep_len(c("#4445f8", "#7563fa", "#9881fc", "#b59ffe"), nrow(.)))
+```
+
+]
+
+---
+## Aplicaciones Interactivas con Shiny
+
+.left-column[
+<img src="https://www.shinyapps.dev/package/shiny/featured.png" />
+]
+
+.right-column[
+**Shiny** te permite construir aplicaciones interactivas que otorgan a los usuarios finales de los datos la posibilidad de interactuar, navegar y explorar los datos, permitiéndoles hallar sus propios insights por sus propios medios.
+
+Pueden chequear este ejemplo desarrollado por [Edward Parker](https://www.lshtm.ac.uk/aboutus/people/parker.edward) y su [Covid-19 Tracker](https://vac-lshtm.shinyapps.io/ncov_tracker/?_ga=2.199884654.193509739.1617140093-220020266.1617140093).
+
+<img src="Archivos/shiny_app_example.png" width="70%" />
+]
+
+---
+## Gráficos
+
+En R podés hacer cualquier tipo de gráfico. 
+
+```{r plot1, echo=FALSE, fig.show='hold', out.width="33%"}
+library(hrbrthemes) # Agrega estilos predefinidos y paletas de colores
+library(ggeconodist)
+library(ggthemes)
+library(lubridate)
+library(scales)
+
+# Plot 1
+hr_data <- read_delim("data/HRDataset_v13.csv", delim = ";")
+perf_by_source <- hr_data %>% 
+  select(RecruitmentSource, PerfScoreID) %>% 
+  group_by(RecruitmentSource) %>% 
+  summarise(performance_promedio = mean(PerfScoreID)) %>% 
+  arrange(-performance_promedio)
+ggplot(perf_by_source, aes(x=performance_promedio, 
+                           y = reorder(RecruitmentSource, performance_promedio))) +
+  geom_point(color = ft_cols$yellow, size = 2) +
+  labs(title="Desempeño Promedio \n por Fuente de Reclutamiento", # Divide el titulo en dos renglones
+       y="",
+       x="Puntaje Promedio de Desempeño")+
+  theme_ft_rc()+
+  theme(plot.title = element_text(hjust = 1))
+
+# Plot 2
+expectativas_laborales <- gs4_get("1HeFbgf0aubb5HBSFJTRzGCpW536O1cji7I6lgiNqvqg") %>%
+  read_sheet()
+exp_lab <- expectativas_laborales%>%
+  rename(Expectativa = Período) %>%
+  pivot_longer(-Expectativa, names_to = "Periodo", values_to = "Valor") %>%
+  mutate(Periodo = dmy(Periodo),
+         Trimestre = quarter(Periodo, with_year = TRUE, fiscal_start = 1),
+         Expectativa = factor(Expectativa, levels = c("La dotación aumentará",
+                                                      "La dotación disminuirá",
+                                                      "La dotación se mantendrá"),
+                              labels = c("Aumentará", "Disminuirá", "Sin Cambios"))) %>%
+  filter(Trimestre > 2013.04) %>%
+  group_by(Trimestre) %>%
+  summarise(Exp_Aumento = mean(Valor[Expectativa== "Aumentará"]),
+            Exp_Disminuye = mean(Valor[Expectativa== "Disminuirá"]),
+            Exp_Igual = mean(Valor[Expectativa == "Sin Cambios"]))
+exp_empresaria <- exp_lab %>%
+  pivot_longer(-Trimestre, names_to = "Expectativa", values_to = "Valor") %>%
+  mutate(Expectativa = factor(Expectativa, levels = c("Exp_Aumento",
+                                                      "Exp_Disminuye",
+                                                      "Exp_Igual"),
+                              labels = c("Aumentará", "Disminuirá", "Sin Cambios"))) %>% 
+  filter(Expectativa != "Sin Cambios")
+ggplot(exp_empresaria, aes(x = Trimestre, y = Valor,  color = Expectativa)) +
+  geom_line(size = 1)+
+  scale_color_manual(values = c("#2980B9", "#E67E22", "#BDC3C7"))+
+  geom_point()+
+  geom_smooth() +
+  labs(title = "Promedio de Expectativas Empresarias y Puestos Vacantes por trimestre",
+       subtitle = "Fuente: Encuesta de Índicadores Laborales",
+       caption = "#30diasdegraficos #RStats_ES",
+       x = "Trimestre", y = "Valor (porcentaje)") +
+  theme(panel.grid = element_blank(),
+        panel.grid.major.y = element_line(color = "#D7DBDD"),
+        panel.grid.minor.y = element_line(color = "#D7DBDD"),
+        panel.background = element_blank(),
+        text = element_text(family = "Lucida Sans Typewriter")) +
+  scale_y_continuous(limits = c(0,15))+
+  geom_vline(aes(xintercept = 2015.4), linetype = 2, alpha = 0.3)+
+  geom_vline(aes(xintercept = 2019.4), linetype = 2, alpha = 0.3)
+
+# Plot 3
+rh <- read_delim("data/rh_ar.csv", delim = ";")
+# Preparación 
+estilov <- theme(panel.grid = element_blank(),
+                 plot.background = element_rect(fill = "#FBFCFC"),
+                 panel.background = element_rect(fill = "#FBFCFC"),
+                 panel.grid.major.x = element_line(color = "#AEB6BF"),
+                 text = element_text(family = "Ubuntu"))
+
+# Compensación vs. Desempeño -
+rh <- rh %>% 
+  filter(puesto %in% c("Analista", "HRBP", "Responsable",
+                       "Jefe", "Gerente")) %>% 
+  mutate(performance = as.integer(runif(490, min = 1, max = 4)),
+         performance = factor(performance,
+                              levels = c(1,2,3),
+                              labels = c("Bajo", "Regular", "Top")),
+         puesto = factor(puesto, 
+                         levels = c("Analista", "HRBP", "Responsable",
+                                    "Jefe", "Gerente")))
+rh %>% 
+  ggplot(aes(x = puesto, y = sueldo_ft)) +
+  geom_econodist(width = 0.5) +
+  geom_point(aes(y = sueldo_bruto, color = performance), size = 2, alpha = 0.3,
+             position = position_jitter(width = 0.2)) +
+  scale_color_colorblind() +
+  scale_y_continuous(labels = comma_format(big.mark = ".", decimal.mark = ";")) +
+  coord_flip() +
+  labs(title = "Distribución de Salarios y Desempeño",
+       x = "", y = "", color = "Desempeño",
+       caption = "Datos de desempeño generados aleatoriamente") +
+  estilov
+```
+
+---
+## Gráficos
+
+En R podés hacer cualquier tipo de gráfico. Visita el repositorio de GitHub de [Ariadna Angulo Brunet](https://github.com/AnguloB/datosdemiercoles) y revisa su trabajo del desafío `#30DiasDeGráficos`.
+.center[
+
+```{r plot2, echo=FALSE, out.width="40%"}
+# dia 4 facetas
+#Datos del SIDC Cat (link  directo en el script )
+backcolor<-"white"
+colortext<-"black"
+#Defino paleta de colores
+palette30<- c("#FD7FC4",  "#FF8A33", "#EC4176", "#A13770" , "#33DDFF", "#FFEC33", "#5564eb", "#4c2882")
+#Eligo la fuente que quiero utilizar
+library(extrafont) # la primera vez ejecutar font_import()
+loadfonts(quiet = T)
+font<- "Trebuchet MS" #Fuente que voy a utlizar
+library(readr)
+Citaciones <- read_csv("https://raw.githubusercontent.com/AnguloB/datosdemiercoles/master/00_30diasDeGraficos/05_arco/Citaciones.csv")
+#selecciono solo las variables que me interesan
+Citaciones%>%
+  select(Authors, Title) ->data
+data<-data%>%separate_rows(Authors, sep = ",") #Separo por coma los autores en cada linea
+data<-data[seq(1,nrow(data),2) ,] #me quedo solo con los pares
+data$Authors<-str_trim(data$Authors) #saco espacios en blanco
+data<-data%>%
+  group_by(Title) %>% 
+  mutate(titleid=factor(group_indices())) #cambio el titulo por un ID
+data<-data[,c("titleid","Authors")]
+library(stringi)
+data$Authors<-stri_trans_general(data$Authors, "Latin-ASCII")
+totals<-data%>% #Creo el total de articulos de cada 
+  group_by(Authors)%>%
+  count()%>%
+  arrange(desc(n))
+names(totals)<-c("from", "totalreal") 
+# transformo los datos de forma que haya la correspondencia entre autores
+dta <- full_join(data, data, c('titleid' = 'titleid')) %>% 
+  select(-titleid) %>% 
+  filter(Authors.x != Authors.y) %>% 
+  group_by(Authors.x, Authors.y) %>% 
+  summarise(total = n())
+names(dta)<- c("from", "to", "total")
+dta<-dta%>%
+  left_join(totals)%>%
+  select(from, to, totalreal)
+  
+library(ggraph)
+palette30  <- c("grey60","#FFEC33","#33DDFF","#EC4176","#FF8A33","#5564eb")
+                
+               
+p1<-ggraph(dta, 'linear') +
+  geom_edge_arc(aes(color=factor(totalreal), alpha=factor(totalreal)),  fold=FALSE)+theme_bw()+
+  geom_node_point(size=2,alpha=0.5) +
+  scale_edge_colour_manual(values=palette30)+
+  theme(text=element_text(family = font),
+        plot.background = element_rect(fill = "white", color=NA), 
+        strip.background =element_blank(),
+        panel.border = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        axis.ticks = element_blank(),
+        legend.background = element_rect(fill=backcolor,
+                                         size=0.5, linetype="solid"),
+        plot.title = element_text(size=20, hjust=0,face="bold", color="#9B77CF"), 
+        plot.subtitle = element_text(face="italic", size=12), 
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "none")+
+  labs(title= "Gráfico de Arco por @AnguloBrunet", 
+       fill="", 
+       subtitle = "A journey around alpha and omega to estimate internal consistency reliability: \n
+       autores y autoras que han citado el articulo y relación entre ellos", 
+       y = "", 
+       x = "")+
+  expand_limits(x = c(-1.2, 1.2), y = c(-5.6, 1.2)) 
+  
+  
+p2<-totals%>%
+  group_by(totalreal)%>%
+  count()%>%
+  ggplot(aes(x=factor(totalreal), y=n, fill=factor(totalreal)))+
+  geom_col(aes( alpha=factor(totalreal)))+
+  geom_text(aes(label=paste0("N = ",n), hjust=-.25))+
+  scale_fill_manual(values=palette30)+
+  coord_flip()+theme_bw()+
+  theme(text=element_text(family = font, color="#9B77CF"),
+        plot.background = element_rect(fill = "white", color=NA), 
+        strip.background =element_blank(),
+        panel.border = element_blank(),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        axis.ticks = element_blank(), 
+        axis.text.x = element_blank(), 
+legend.position = "none", 
+plot.caption = element_text( face="italic", size=10, hjust = 1, color="black"))+
+  labs(title ="",
+       subtitle="\n \n",
+       caption = "Viladrich, Angulo-Brunet y Doval (2017) \n Hecho por @AnguloBrunet \n #30díasdegráficos \n Fuente: Scopus 15 mayo 2020", 
+       y="Autores", 
+       x="Nº articulos")+
+  scale_y_continuous(position = "right", limits=c(0,180))
+library(cowplot)
+  
+plot_grid(p1, p2, nrow=1, rel_widths = c(0.8, .2))
+```
+
+]
+---
+class: inverse, center, middle
+# Literalmente,
+
+--
+
+### En R podés hacer
+
+--
+
+### cualquier tipo de gráfico
+
+---
+## En serio... cualquier tipo de gráfico
+
+Créditos: Ashten Anthony: [Guy checking out a girl meme](https://github.com/ashten28/my_ggplots/tree/master/guy_checking_out_a_girl_meme)
+
+
+```{r meme, echo=FALSE}
+# load libraries
+library(readr)
+library(dplyr)
+library(forcats)
+library(ggplot2)
+library(patchwork)
+# read in data - manually created
+data <-
+  read_csv("https://raw.githubusercontent.com/ashten28/my_ggplots/master/guy_checking_out_a_girl_meme/data.csv") %>% 
+  mutate(
+    paint = fct_relevel(paint, c("black", "brown", "beige", "white", "black_2", "grey_2",  "red", "blue_2", "beige_3", "blue", "beige_2", "grey"))
+    
+  )
+# start ggplot
+p1 <- 
+  ggplot(data) +
+  # using geom_bar, so didnt cheat (though using geom_tile was much easier)
+  geom_bar(
+    mapping = aes(x = x, fill = paint),
+    width = 1
+  ) +
+  # set colours for bars
+  scale_fill_manual(
+    values = c("#24211a", "#593326","#e4a095", "#ffffff", "#24211a", "#93a9b6", "#fa0107", "#0b59b3", "#e4a095", "#0b59b3", "#e4a095","#93a9b6")
+  ) +
+  # make grid squares
+  coord_equal() +
+  # coord_polar() +
+  # add themes
+  theme_bw() +
+  theme(
+    legend.position = "none",
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text  = element_blank(),
+    panel.grid = element_blank()
+  )
+# customized legend - create data to be plotted to look like a legend (not recommended)
+legend_data <-
+  data.frame(
+    x = 0,
+    y = c(4, 6, 8, 10, 12),
+    label = c("Making ggplot\n when Hadley\nasks", "", "Me", "", "Doing useful\n data analysis")
+  )
+# start ggplot for custom legend
+p2 <- 
+  ggplot(
+    data = legend_data,
+    mapping = aes(x = x, y = y)
+  ) +
+  # using geom_tile to create filled boxes
+  geom_tile(
+    mapping = aes( fill = label),
+    width = 0.4, height = 0.4,
+  ) + 
+  # using geom_text to place text beside tiles
+  geom_text(
+    mapping = aes(label = label),
+    size = 6,
+    nudge_x = 0.4,
+    nudge_y = 0,
+    hjust = 0,
+    vjust = 0.5
+  ) + 
+  scale_fill_manual(
+    values = c("#ffffff", "#93a9b6", "#fa0107", "#0b59b3")
+  ) +
+  # setting scales to look better/ coord_fixed to make plot narrower
+  scale_x_continuous(limits = c(-0.5,3)) +
+  scale_y_continuous(limits = c(1, 15)) +
+  coord_fixed(ratio = 0.8) +
+  # add themes
+  theme_void() +
+  theme(
+    legend.position = "none"
+  )
+# using patchwork to combine main plot and custom legend
+p <- p1 + p2
+p
+```
+
+
+
+---
+background-color: #f2f5f7
+
+.pull-left[
+<img src="https://www.yucatanalamano.com/wp-content/uploads/2021/03/D0XyhF-WoAIW8vj.jpg" />
+]
+
+.pull-right[
+# Codear en R para RH: <br> Una Breve Guía para Aprender a Programar y Vivir Para Contarlo
+]
+
+
+---
+## El perfil de un Data Scientist
+
+.center[
+<img src="https://i.ytimg.com/vi/r2I3IDKwyMw/maxresdefault.jpg" width="80%"/>
+]
+
+---
+## Codear puede ser duro
+
+.pull-left[
+Aprender a programar es como practicar un nuevo deporte cuando tenés 40 años y han pasado décadas desde la última vez que hacías alguna actividad física.
+
+
+Hay que saber que va a ser doloroso, confuso, feo y frustrante.
+
+Pero, también puede ser divertido. Tenes que encontrar la forma de lograr victorias rápidas que te hagan sentir que estás cosechando logros.
+
+Y cuando tu primer código funcione, te vas a sentir así: 
+]
+
+.pull-right[
+<img src="https://movie-fanatic-res.cloudinary.com/iu/s--jWnmUCCb--/t_full/cs_srgb,f_auto,fl_strip_profile.lossy,q_auto:420/v1364991045/run-fatboy-run.jpg" />
+]
+
+---
+background-color: #696969
+class: center, middle
+
+<img src="https://media.giphy.com/media/fSSGX7IHcqlDYwVYsH/giphy.gif" width="90%"/>
+
+
+---
+# R es mucho más que Estadística
+
+R fue concebido como un lenguaje para análisis estadístico... pero hoy en día es mucho más que eso. R tiene muchos paquetes y sus capacidades se han expandido tanto que puede hacer nuestro trabajo cotidiano mucho más fácil.
+
+--
+
+En R podés:
+
+* Unir datos de múltiples fuentes `r emo::ji("juggle")`
+
+--
+
+* Automatizar reportes con `R Markdown` `r emo::ji("cool")`
+
+--
+
+* Hacer presentaciones, como la que estás viendo, con el paquete `xaringan` `r emo::ji("+1")`
+
+--
+
+* `r emo::ji("chart")` Hacer tableros de comando con el paquete `flexdashboard`.
+
+
+--
+
+* `r emo::ji("rockstar")` Compartir tu trabajo y hacerlo reproducible. 
+
+--
+
+* Escribir libros `r emo::ji("book")`, crear blogs `r emo::ji("bubble")`... y mucho más
+
+---
+## La ventaja de empezar de cero
+
+.pull-left[
+.right[
+<img src="https://m.media-amazon.com/images/I/41PZRSHF-NL.jpg" />
+]
+]
+
+
+.pull-right[
+Peter Thiel, con su analogía de ir *de cero a uno*, señala que cuando creas algo nuevo y disruptivo, que soluciona un problema que nadie antes había pensado, te estás moviendo de cero a uno.
+
+Si bien no vas a reinventar la rueda al usar R en tu organización, cuando crees tu primer análisis, tu primer informe, o una presentación sencilla usando R, **algo puede cambiar** en tu organización.
+
+La principal ventaja de empezar algo desde cero es que tenés mucho espacio para introducir mejoras, y cada pequeño cambio que lleves a cabo tendrá un gran impacto.
+]
+
+---
+# 4 tips para aprender a codear
+
+No hay recetas mágicas para aprender a codear: vas a necesitar dedicar tiempo, y requiere mucha práctica, paciencia y persistencia. Sin embargo considero que estos consejos te pueden ser muy útiles:
+
+--
+* `r emo::ji("clown")` Haz proyectos divertidos.
+
+--
+* `r emo::ji("lifter")` Busca apoyo en las comunidades de R.
+
+--
+* `r emo::ji("calendar")` Fija fechas de entrega.
+
+--
+* `r emo::ji("dog")` Se amable contigo.
+
+---
+
+.left-column[
+
+### **Haz proyectos divertidos**
+
+### Busca apoyo en las comunidades de R
+
+### Fija fechas de entrega
+
+### Se amable contigo
+
+
+]
+
+.right-column[
+[Ryan Timpe](https://www.linkedin.com/in/ryantimpe/) en [su presentación](https://www.rstudio.com/resources/rstudioconf-2020/learning-r-with-humorous-side-projects/) en la `RStudio::conf` nos muestra distintas... estrategias para aprender a programar y divertirnos al mismo tiempo.
+
+Además, hay mucho paquetes y fuentes de datos para jugar, que son entretenidos y estimulantes, y que te permitirán aprender algo de Ciencia de Datos, sin la sensación de estar haciendo algo extremadamente difícil.
+]
+
+---
+### Algunos ejemplos
+
+.pull-left[Usaremos una encuesta de Sueldos de RH de Argentina:
+
+```{r sg1, fig.show='hold'}
+library(tidyverse)
+
+# Carga de datos
+rh <- read_delim("data/rh_ar.csv", delim = ";")
+
+# Limpiamos los datos y calculamos el sueldo promedio por posición
+d1 <- rh %>% 
+  filter(between(sueldo_bruto,
+                 20000,
+                 200000), # Filtramos salarios
+         puesto %in% c("Analista", "HRBP", "Jefe", "Gerente")) %>% # Filtramos puestos
+  mutate(puesto = factor(puesto, 
+                         levels = c("Analista", "HRBP", "Jefe", "Gerente"))) %>% # Ordena puestos
+  group_by(puesto) %>% 
+  summarise(sueldo_promedio = mean(sueldo_bruto)) 
+# Just a regular plot
+p1 <- ggplot(d1, aes(x = puesto, y = sueldo_promedio, fill = puesto)) +
+  geom_col() +
+  theme_minimal()
+p1 + ggtitle("Sueldo Promedio por Posición")
+```
+
+]
+
+.pull-right[
+```{r ref.label="sg1", echo=FALSE}
+```
+
+]
+
+---
+## Juguemos con algunas paletas de colores 
+
+.pull-left[
+```{r sg2, fig.show='hide'}
+library(metallicaRt) # Cargar paquete              
+# Elige paleta de colores
+fuel <- metalli_palette("fuel") #<< 
+# Plot
+p1 +
+  scale_fill_manual(values = fuel) + #<<
+  labs(title = "Presentando: paquete metallicaRt por John MacKintosh",
+       caption = "GitHub: https://github.com/johnmackintosh/metallicaRt")
+```
+
+]
+
+.pull-right[
+```{r ref.label="sg2", echo=FALSE}
+```
+]
+
+---
+## Juguemos con algunas paletas de colores 
+
+.pull-left[
+```{r sg3, fig.show='hide'}
+library(gameofthrones) # Cargar paquete
+# Plot
+p1 +
+  scale_fill_got(discrete = T, option = "Stark2") + #<<
+  labs(title = "Presentando: paquete gameofthrones por Alejandro Jiménez",
+       caption = "GitHub: https://github.com/aljrico/gameofthrones")
+```
+]
+
+.pull-right[
+```{r ref.label="sg3", echo=FALSE}
+```
+
+]
+
+---
+## Convirtamos los gráficos a ladrillos de Lego
+
+.pull-left[
+Ryan Timpe además desarrolló el paquete `brickr` que permite que los gráficos emulen a los ladrillos de Lego.
+```{r bricks, fig.show='hide'}
+library(brickr)
+
+# Guardar el gráfico en un archivo png
+ggsave(p1, filename = "p1.png")
+
+# Cargar la imagen en R
+mosaic1 <- png::readPNG("p1.png") %>% 
+  image_to_mosaic()
+
+# Transformar el gráfico
+mosaic1 %>% build_mosaic()
+```
+
+]
+
+.pull-right[
+```{r ref.label="bricks", echo=FALSE}
+
+```
+
+]
+---
+## Hagamos algo más divertido
+
+.pull-left[
+```{r ref.label="bernie", echo=FALSE}
+```
+
+]
+
+```{r bernie, fig.show='hide'}
+library(ggbernie) # Cargar paquete
+# Plot
+ggplot(d1) +
+  geom_bernie(aes(x = puesto, y = sueldo_promedio), #<<
+              bernie = "sitting") + #<<
+  labs(title = "Presentando: ggbernie por R-CoderDotCom",
+       caption = "GitHub: https://github.com/R-CoderDotCom/ggbernie")
+```
+
+---
+.left-column[
+
+### Haz proyectos divertidos
+
+### **Busca apoyo en las comunidades de R**
+
+### Fija fechas de entrega
+
+### Se amable contigo
+
+
+]
+
+.right-column[
+Algo **impresionante** de R son los Grupos de Usuarios de R (RUG por sus siglas en inglés) y las comunidades que hay en todas partes del mundo.
+
+Hay decenas de RUGs y de grupos de R-Ladies que organizan talleres, brindan apoyo (con frecuencia más allá de R), escriben libros y los comparten de manera abierta y gratuita. Traducen cheatsheets, se preocupan por ser inclusivos, organizan meetups y conferencias, comparten contenido, y lo más importante, te hacen saber que no estás solo o sola en este viaje.
+
+En la misma línea hemos creado para los profesionales de RRHH de habla hispana nuestra propia comunidad: el **[Club de R para RRHH](https://linktr.ee/r4hrclub)**.
+
+También puedes encontrar recursos gratuitos dirigidos a los profesionales de People Analytics y RRHH, por ejemplo los libros (en inglés)  de [Hendrik Feddersen](https://www.linkedin.com/in/hendrikfeddersen/)'s *["HR Analytics in R"](https://hranalyticslive.netlify.app/index.html)*, y el de [Keith McNulty](https://www.linkedin.com/in/keith-mcnulty/)'s *["Handbook of Regression Modeling in People Analytics"](http://peopleanalytics-regression-book.org/)*. 
+
+Podés encontrar a todos los Grupos de Usuarios de R de todo el mundo en [este link](https://benubah.github.io/r-community-explorer/rugs.html) `r emo::ji("party")`
+]
+
+---
+### #TidyTuesday
+
+*Tidy Tuesday* es una iniciativa organizada por la comunidad global de R, en la cual cada martes, comparten un dataset para que cualquiera pueda practicar y compartir su trabajo. Busca el hashtag `#TidyTuesday` en Twitter para saber más al respecto.
+
+Las comunidades de Latinoamérica y España desarrollaron un proyecto similar que pueden encontrar con el hashtag `#DatosDeMiercoles`.
+
+Estas iniciativas son muy útiles porque te permiten ver como alguien hace un análisis y luego replicarlo con tus propios datos.
+
+Veamos un ejemplo.
+
+---
+
+### Vacaciones y Vino
+
+Imagina que viajas de vacaciones hacia Argentina y que quieres visitar bodegas de vino en Mendoza, la provincia productora de vino por excelencia del país, para probar el mejor vino Malbec.
+
+Así que exploraremos el archivo [Wine Ratings Dataset](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-05-28) para encontrar dónde se producen los mejores Malbecs de la provincia.
+
+¡Salud! `r emo::ji("wine")`
+
+.center[
+<img src="https://news.agrofystatic.com/vino_malbec_agrofy_news.jpg?d=620x375", width="40%" />
+]
+---
+
+### Vacaciones y Vino
+
+.pull-left[ Carguemos los datos, y filtremos por `Mendoza Province`.
+
+```{r wine1}
+library(tidyverse)
+# Carga de datos
+wine_ratings <- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-28/winemag-data-130k-v2.csv")
+wine_ar <- wine_ratings %>% 
+  filter(province == "Mendoza Province") 
+dim(wine_ar) # Explore dataset
+```
+
+]
+
+--
+
+.pull-right[
+¡Hay muchos productores de vino! `r emo::ji("scared")`
+
+```{r wine2}
+wine_ar %>% 
+  summarise(n_winery = unique(winery))
+```
+
+]
+
+---
+### Vacaciones y Vino
+
+.pull-left[
+Filtremos los datos por `Malbec` y veamos las regiones donde podemos encontrar los vinos con los puntajes más alto.
+
+```{r wine3, results='hide'}
+wine_ar %>% 
+  filter(variety == "Malbec") %>% 
+  group_by(region_1) %>% 
+  summarise(avg_points = mean(points)) %>% 
+  arrange(-avg_points)
+```
+
+]
+
+.pull-right[
+```{r ref.label="wine3", echo=FALSE}
+```
+
+]
+
+---
+### Vacaciones y Vino
+
+.pull-left[
+Ahora, podemos tomar una decisión:
+
+```{r wine4, fig.show='hide'}
+wine_ar %>% 
+  filter(variety == "Malbec",
+         region_1 == "Perdriel") %>% 
+  ggplot(aes(x = points, y = price, color = winery)) +
+  geom_point(size = 6, alpha = 0.6, position = "jitter") +
+  ggthemes::scale_color_colorblind() +
+  theme_minimal()
+```
+
+]
+
+.pull-right[
+```{r ref.label="wine4", echo=FALSE}
+```
+
+]
+
+---
+### Ahora úsalo con tus propios datos
+
+Con un enfoque similar, podemos analizar los puntajes de los programas de capacitación de una empresa, y realizar un ránking de los mejores proveedores que más alineados están con los objetivos del área.
+
+Básicamente, reproduciremos el proyecto *Vacaciones y Vino* pero con nuestros propios datos.
+
+--
+
+Usaré un divertido paquete llamado `noah`, desarrollado por [Tobias Busch](https://teebusch.github.io/noah/), para anonimizar los nombres de los proveedores.
+
+.right[
+<img src="https://teebusch.github.io/noah/reference/figures/logo.png" />
+]
+
+---
+### Ranking de Proveedores de Capacitación
+
+.pull-left[En este paso, cargamos los datos, anonimizamos los datos de los proveedores, y calculamos el puntaje promedio de alineación para cada proveedor.
+```{r training-analysis1, results='hide'}
+library(noah)
+# Carga de datos
+training_ratings <- read_delim("data/training_ratings.csv", delim = ";")
+# Anonimizamos datos y calculamos la alineación promedio
+(training_analysis <- training_ratings %>% 
+    mutate(pseudo_supplier = pseudonymize(supplier)) %>% 
+    group_by(pseudo_supplier) %>% 
+    summarise(alignment = mean(area_goals_alignment))) 
+  
+```
+]
+
+.pull-right[
+```{r ref.label="training-analysis1", echo=FALSE}
+```
+]
+---
+### Ranking de Proveedores de Capacitación
+
+.pull-left[
+```{r ref.label="training-analysis2", echo=FALSE}
+```
+
+]
+
+.pull-right[
+Y ahora hacemos el gráfico del ranking.
+```{r training-analysis2, fig.show='hide'}
+ggplot(training_analysis, aes(x = alignment, 
+                              y = reorder(pseudo_supplier, alignment))) + 
+  geom_col(fill = "#d6dbdf") +
+  labs(title = "Ranking de Proveedores de Capacitación \n por Promedio de Alineación con Objetivos",
+       x = "% Alineación",
+       y = "Proveedor",
+       caption = "Puntajes generados aleatoriamente") +
+  theme_minimal() +
+  geom_vline(xintercept = 0.6,
+             color = "red",
+             linetype = 2)
+```
+
+]
+
+---
+.left-column[
+
+### Haz proyectos divertidos
+
+### Busca apoyo en las comunidades de R
+
+### **Fija fechas de entrega**
+
+### **Se amable contigo**
+
+
+
+]
+
+.right-column[
+Algo que me sirve mucho es **fijar fechas de entrega**. Saber que tengo que entregar un análisis en una fecha específica, hace que siempre encuentre la forma de que las cosas funcionen.
+]
+
+--
+
+.right-column[Finalmente, si estás empezando a codear y nada parece funcionar, tienes que saber que todos pasamos por lo mismo. Aprender a programar y usar R en tu trabajo requiere de tiempo, paciencia y de consistencia.
+]
+--
+.right-column[
+Y si sientes que nada funciona, pide ayuda en una comunidad de R: busca una comunidad o simplemente crea una. No necesitas ser un usuario experto para hacerlo.
+]
+
+--
+.right-column[
+No tengas miedo de abandonar un curso si no entiendes nada. Busca profesores, cursos y fuentes que mejor se adapten a tus necesidades y conocimientos.]
+
+--
+.right-column[
+Y recuerda que no necesitas ser un genio o una genia para usar R. Podés usarlo para tareas simples (o no tan simples) como unir datos de múltiples archivos de Excel, o hacer una presentación para mostrar resultados de una manera mucho más precisa y rápida.
+
+]
+
+---
+class: inverse middle center
+# Conclusiones
+
+---
+# Conclusiones
+
+* R es un viaje de ida. Te puede llevar tan lejos como imagines.
+
+--
+
+* Busca comunidades afines a tus intereses que impulsen tus habilidades y que te levanten cada vez que necesites ayuda.
+
+--
+
+* Comparte lo que sabes hacer. Vas a obtener feedback para mejorar tu trabajo, y puedes empoderar a alguien para que aprenda de vos.
+
+
+
+---
+# Conclusiones
+
+.pull-left[
+<img src="Archivos/principio.png" width="70%"/>
+
+.bottom[Ilustración por Allison Horst.]
+]
+
+.pull-right[
+
+> *"Aprender es adquirir poder (y por eso da mucho trabajo), pero es un poder que no se gasta, y que una vez adquirido nadie puede quitármelo.*
+> *Porque así es el conocimiento: no se gasta con el uso y no es expropiable.*
+> *Lo que significa que cuando enseñamos, cuando compartimos nuestros conocimientos, cuando publicamos nuestros materiales de forma libre, reusable y en nuestro idioma, **estamos compartiendo poder**."*
+> [Yanina Bellini Saibene](https://twitter.com/yabellini). Researcher at INTA. Global Chair of LatinR_Conf.
+
+]
+
+---
+# Let's connect!
+
+.pull-left[
+`r icons::fontawesome("link")` Presentación: [bit.ly/paw21-es-r4hr](http://bit.ly/paw21-es-r4hr)
+
+`r icons::fontawesome("linkedin")` [LinkedIn](https://www.linkedin.com/in/sergiogarciamora/?locale=en_US)
+
+`r icons::fontawesome("twitter")` [Twitter](https://twitter.com/sergiogarciamor)
+
+`r icons::fontawesome("paper-plane")` [Telegram](https://t.me/SergioGarciaMora)
+
+`r icons::fontawesome("envelope")` [sergio@d4r.com](mailto:sergio@d4hr.com)
+
+]
+
+.pull-right[
+<img src="https://media.giphy.com/media/fWfowxJtHySJ0SGCgN/giphy.gif" />
+]
+
+---
+class: inverse, middle, center
+# Fuentes y créditos
+
+---
+# Fuentes
+

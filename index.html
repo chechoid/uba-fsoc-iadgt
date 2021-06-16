@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>R en RRHH</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Sergio Garcia Mora" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/shinobi.css" rel="stylesheet" />
+    <link href="libs/remark-css/tamu-fonts.css" rel="stylesheet" />
+    <meta name="github-repo" content="https://github.com/chechoid/uba-fsoc-iadgt"/>
+    <meta name="twitter:title" content="R en RRHH"/>
+    <meta name="twitter:description" content="Una introducción al lenguaje R y las oportunidades que ofrece para RRHH para el análisis de datos y la automatización de los procesos. Desarrollada por Sergio Garcia Mora."/>
+    <meta name="twitter:url" content="http://bit.ly/paw21-es-r4hr"/>
+    <meta name="twitter:image:src" content="https://github.com/chechoid/paw21-coding-in-r-live-to-tell/blob/main/Archivos/portada.png"/>
+    <meta name="twitter:image:alt" content="R en RRHH Curso Introducción al Análisis de Datos para la Gestión del Talento Autor: Sergio Garcia Mora | Pablo Senra"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:creator" content="@sergiogarciamor"/>
+    <meta name="twitter:site" content="@data4hr"/>
+    <meta property="og:title" content="R en RRHH"/>
+    <meta property="og:description" content="Una introducción al lenguaje R y las oportunidades que ofrece para RRHH para el análisis de datos y la automatización de los procesos. Desarrollada por Sergio Garcia Mora."/>
+    <meta property="og:url" content="http://bit.ly/paw21-es-r4hr"/>
+    <meta property="og:image" content="https://github.com/chechoid/paw21-coding-in-r-live-to-tell/blob/main/Archivos/portada.png"/>
+    <meta property="og:image:alt" content="R en RRHH Curso Introducción al Análisis de Datos para la Gestión del Talento Autor: Sergio Garcia Mora | Pablo Senra"/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:locale" content="en_US"/>
+    <meta property="article:author" content="Sergio Garcia Mora"/>
+    <script src="libs/htmlwidgets/htmlwidgets.js"></script>
+    <link href="libs/vis/vis.css" rel="stylesheet" />
+    <script src="libs/vis/vis.min.js"></script>
+    <script src="libs/visNetwork-binding/visNetwork.js"></script>
+    <link href="libs/wordcloud2/wordcloud.css" rel="stylesheet" />
+    <script src="libs/wordcloud2/wordcloud2-all.js"></script>
+    <script src="libs/wordcloud2/hover.js"></script>
+    <script src="libs/wordcloud2-binding/wordcloud2.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: inverse, top, center
+background-image: url(Archivos/portada.png)
+background-size: cover
+
+
+
+
+---
+
+
+
+---
+
+class: inverse, center, middle
+
+# ¿Qué es R?
+
+---
+# ¿Qué es R?
+
+**R** es un lenguaje de código abierto, que se lo conoce inicialmente como un lenguaje de análisis estadístico.
+
+--
+
+Hoy en día, y gracias a la comunidad de desarrolladores quienes expandieron sus capacidades, se puede usar R para muchas cosas más.
+
+--
+
+En R podés trabajar con cualquier tipo de datos, y hacer todo tipo de análisis que se te ocurra.
+
+---
+class: inverse, center, middle
+# ¿Qué cosas se pueden hacer en R?
+
+---
+## Análisis Predictivos
+
+.pull-left[
+🔮 Un caso de uso bien conocido es para poder realizar *análisis predictivos*, por ejemplo para predecir las renuncias de los empleados.
+
+
+
+]
+.pull-right[
+&lt;img src="index_files/figure-html/pred2-1.png" width="504" /&gt;
+
+
+]
+---
+## Cluster Analysis
+
+.pull-left[
+
+&lt;img src="index_files/figure-html/clus1-1.png" width="504" /&gt;
+]
+
+--
+
+.pull-right[
+&lt;img src="index_files/figure-html/clus2-1.png" width="504" /&gt;
+
+]
+---
+## Organizational Network Analysis
+
+.pull-left[
+<div id="htmlwidget-df4e1f8d8c79c5753d56" style="width:504px;height:504px;" class="visNetwork html-widget"></div>
+<script type="application/json" data-for="htmlwidget-df4e1f8d8c79c5753d56">{"x":{"nodes":{"id":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84,85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104,105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124,125,126,127,128,129,130,131,132,133,134,135,136,137,138,139,140,141,142,143,144,145,146,147,148,149,150,151,152,153,154,155,156,157,158,159,160,161,162,163,164,165,166,167,168,169,170,171,172,173,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191,192,193,194,195,196,197,198,199,200,201,202,203,204,205,206,207,208,209,210,211,212,213,214,215,216,217,218,219,220,221,222,223,224,225,226,227,228,229,230,231,232,233,234,235,236,237,238,239,240,241,242,243,244,245,246,247,248,249,250,251,252,253,254,255,256,257,258,259,260,261,262,263,264],"label":["Javier Calzolari","Pablo Senra","Sergio E. Garcia Mora","Erik van Vulpen","Facundo Iannello","Marina Cañizo","Eduardo Terrón Gómez","Daniela Alonso","Ariel Felsztyna","Micaela M. Kulesz, PhD","Santiago Candia","Carsten Kraus","Yael Epstein","Vanina Petillo","Miranda Chab","María Belén Karamanukian","Macarena Estévez - Socia Deloitte","Daniela Clavel","Gabriela Gisele Pérez","Andrea Cesar","Chiara Usuardi","Carlos Matias Bavoleo","María Florencia Nápoli","Jose Istillarte","Héctor Vega","Maximiliano Eggers","Natalia Gudalewicz","Alejandro Rodriguez I.","Gustavo Bulgach","Alejandro Tejada Borges","Carolina Coronado","Fernando Morente Cadenas de Llano","Noeli Daniela Rossi","Edwin Andres Sorza Gonzalez","Nataly Escobari","Luis Alfonso Gomez Zuñiga","Gerardo Floridia","Nahuel Rodriguez Araujo","David Ruiz","Edgardo Lugo","Kenny Rodriguez Olier","Renzo Enrique Palomino Távara","Fernando Flores","Victor Rumay","Marino Pernía G.","Alan Rosenfeld","Kevin Vargas","Ailén Rojas","Mariano d'Almeida","Hernan Herrera Albelo","Guadalupe Alvarez Mulleady","Damián Barbero","Emanuel Saavedra","Gloria Caterina Ruschner","Eduardo Illiano","Jaime O'Conor","Mathias Longo","Federico Piacente","Cristian Jakubowski","Mauricio Anderson","Mauro García","María Florencia Rossi","Johanna Dragone","Ramiro Savoie","Carolina Ielapi","Gilmar Argote","Agustina Ormart","Alejandro Eloy La Moglie","Rodrigo Pantoja Navajas","Jorge Vidaurre","Javier Gurevich","Christian Cerrella","Ariel Camargo","Diego Martín Vacarezza","Mirian Faig","Marcelo Piattini Velthuis","Federico Vidal","Joan Manuel Perez Meiss","Pablo A. Guzzi","Martin Carames Abente","Matias Juan Leive","Fabrisio Foscarino","Ramiro Fernández","Pablo Avenali","Ezequiel Gutt","Christian Grunblatt","Romina Prez","Roberto Panai","Rolando Gutiérrez Cortés","Ignacio Tomás Bullrich","Blanca Monreal","Agustin Markovic","Daniel Rivera Escobar","Iván Guerrero Meléndez","Jorge Brian Alarcón Flores","Fernando López Gil","Lic. Ana Belen Gonzalez Arguello","Leonardo Ballón","Marcela Huerfano","Ismael Gómez Schmidt","Juan Francisco Muñoz","Ariel Fleiderman","Anita Quevedo","Tomás Marcos","Jorge Maria Ortiz Claverol","Romain Martin","Javier Orraca","Rafael Zambrano","Luciano Borgoglio","Mariana Hariri","Yolanda Barrull","Alejandro Sánchez Rodríguez","Ignacio Lecha Val","Luis Serra Díaz-Cano","Jean (JP) Philius","Alexandru Gotoi","Emmanuel Martín Garnica","Almudena López-Cediel Verdú","Eloy Eligón","Augusto Gentile","Andrés Paredes","Francisco J. Rodríguez","Jayshween Shiron Kumar","Andreas Kyprianou","Daniel Lacunza","Mehul Pandya","Info Data 4HR","M.Angeles Alba García de la Camacha","Gisele Cabrera","Manish Anand","Barbara Anania","Andres Diaz Devia","Dan Moorehead","Valentin Veronesi","Rodrigo León Tovi","Gal Mozes","Hamza MADMOUNE","Luis Andrés Martínez Peraza","Daniela Garay","Desalina (Alina) Guarise, MPA, PHR","Gabriela Bouret","juan jose iguaran fernandez","Pablo Gómez Ase","Federico Abud","Hernán Escudero","Abhinav Meesa","Maria Nolazco Masson","Daniel Garcia Teba","Federico Ezequiel Torres","Olmo Barragan","Federico Ariel Mendez","Eduardo Valencia","Pablo Garriga Suárez","Daiana Emili","Karina Bartolome","Mariano Alonso","Nicolás Morales Galaz","Sergio Raja","Chris Coleman","Chris Wilpert","Martin Juiz","Claudio Mac-Lean","Viviana Valdés","Monica Patricia Pineda Vargas","María Emilia Charnelli","Littal Shemer Haim (ליטל שמר חיים)","Georgina Ricci","Federico Schmidt","Matías Conde","María Jesús Belizón Cebada, Ph.D.","Giovanna Constant","Edgar Leandro Jimenez","Diego Antonio Hernández Ronquillo","José De Souza","Praveen Viswam, GPHR","Paulina Verasay","Keith McNulty","Muge Bakkaloglu, PMP®","Mike West","Ana Rita Almada","Martin Andres Minnoni","An Rycek","Ewuard Avila Silva, Msc.","Jorge Esteban Saldeña","Sofia Rovito","Gaurav Guliani","Pablo Martin Karg","Sofia Fasce","Sebastián Lombraña","Federico Costa","Manuel Villalonga","Dante Maino","Eliana Moccia","NAZARENO MEDRANO","Diego Ignacio Peñaloza","Ricardo Leston","Juan Agustin Vago","Sebastian Sanchez Mazza","Simon White","Walter Alejandro Bernal","Franco Ubber Scapin","German Avanzato","Matias Monja","Juan Agustin Pisano","Nexbas S.A.","Andrew Sosa","Guido Luca Oliveri","Agustin Fusaro","Wayne Lee","Eugenio Molina","Lambolla Mariano","Jack Dunn","Dr. Andrew Doyle","Dr. Lakshmi Keerthi, PhD","Ivanna Grone","Kanwal Safdar","Edgardo Ariel Osorio","Sjoerd van den Heuvel","Romina Medina","Gabriel Ravena","Federico Vazquez Morales","Mariano Ariel Bernardoni","Juan Martín Román","Richard Rosenow","Pablo Daniel Morinigo","Raúl Mascaró","Victor Daniel Casas Hernandez","Ramiro Marchesini Piedra","Clarisa Castelloni","Martin Nash","Damian Ignacio Ramos","Patricia Isabel Romero","Santiago Donikian","Jonathan Nicolás Gimenez","Matias Rivero","Amalia Carolina Guaymás Canavire","Martin Maffioli","Alejandro Salevsky","Florencia Novidelsky","Fernando Croceri","Adrián Martín Urrutia Toledo","Alejandro Tamashiro","Nicolás Martins","Rodrigo Lloret","Rocío Cairo Presepi","Rubén Flecha","Fernando Gonzalez","Pablo Tempone","Romina Elena Almada","Sergio Miller","Gabriela Plantie","Diego Juritz","Eduardo J. Azzola","Justo Raúl Revilla Calle","Federico Rosenhain","Lissett Goncalves","Agustín Demarchi","Guillermo Lissa","Omar Ernesto Cabrera Rosero","Marcos Feole","Gaston Liberman","Daniela Blanco","Leandro Martín Ríos","Lucas Pogorelsky"],"color":["#DD6B06","#DD6B06","#DD6B06","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB","#2CAFBB"],"x":[0.0082018491739555,0.691902350455691,-0.548152170075159,-0.185623874611067,0.333194730238177,0.36773231882261,0.329586593583517,-0.213720070178605,-0.128736936807377,0.359208910209756,-0.318172756044928,0.114620777609944,0.2129221438706,0.205881818262367,-0.312247010852185,-0.0631961585782774,0.194699636229377,0.179726487689059,-0.340424487611275,0.295408361714691,0.256261968043455,-0.164425193650819,-0.176351421262592,0.16112840322174,-0.188588699026484,-0.29374553840281,-0.246223309034752,-0.20392706729575,-0.251894850173484,-0.243043849873549,0.211146269622599,-0.118312953782712,0.291825420867433,0.328519916047752,0.15104488883235,-0.233500415674619,-0.280349503779012,0.316733907535243,0.0714455437466008,0.197343359783621,-0.0693257784184869,0.275816704193471,-0.223327465363923,0.111802446880898,0.244029727340247,0.382049204418524,0.244592412113886,-0.31448635194201,0.11201343225043,0.276257138756036,0.0765062823940685,0.381882121674604,0.321977147758449,-0.265581125772313,-0.159661419375529,-0.0221964212020289,0.310657731606362,0.436467918799803,0.285994969143378,-0.164683191870615,0.258170499240116,0.0502294522012736,0.334405360135784,0.056057279909473,0.255529392950256,0.0265944594109206,0.229538360948194,-0.113879679958948,-0.123996578824953,0.12064687806471,-0.344875998523721,-0.00548060420909302,-0.00377106018947815,-0.285371939064291,0.37168333521097,0.155575957549277,-0.0586300778494631,-0.248821230950503,-0.207728725713213,-0.143699708420876,0.0978263925993941,0.00977362893697364,-0.285086729367984,0.973126048811738,0.969478824354219,0.966070695099412,1,-0.973865830945215,-0.993554637373196,-0.471779280291201,-0.859605677941316,-0.435385242618045,-0.686727757245051,-0.823630776726357,-0.658836063580836,-0.386475763039325,-0.867538929362673,-0.884455938988597,-0.956275504558771,-0.806876966787758,-0.641047593895711,-0.63733091874681,-0.274156413726197,-0.363588203678564,-0.320751066076525,-1,-0.698571641534357,-0.33641696765578,-0.836297921975504,-0.878262529914306,-0.960761769730884,-0.652747619174387,-0.806936693083705,-0.689061737471294,-0.797907710711984,-0.910104020099496,-0.151800031511814,-0.361090115669711,-0.99419071032694,-0.767664319297529,-0.581370332197495,-0.483455142921318,-0.583635282953097,-0.814775258951153,-0.539927810449315,-0.435274262861578,-0.298515375974306,-0.317053100090956,-0.655838142498528,-0.751530193585776,-0.920548962560759,-0.902749936875436,-0.878380213880878,-0.861202132638249,-0.782045883234237,-0.551283068435399,-0.927110260010739,-0.678037925914912,-0.718888464984781,-0.29637889741086,-0.188899702118179,-0.582621828622901,-0.553461605897302,-0.939799420378029,-0.83476790568192,-0.848361208905464,-0.327960811972369,-0.486195577289461,-0.232262426377855,-0.970210750424044,-0.487256514632061,-0.583242804690771,-0.957475178372331,-0.348690768835157,-0.902374479894529,-0.98200772592339,-0.454923242248332,-0.613779211868451,-0.732216853693667,-0.223363431172629,-0.737867867555066,-0.233678117896796,-0.762582722044257,-0.734411826520027,-0.289442601765448,-0.35967529611614,-0.897405663699003,-0.515251059850467,-0.811539079072849,-0.778698764848453,-0.227585894429144,-0.205855549946894,-0.230655047388223,-0.419928315814029,-0.686300928817192,-0.792887474563218,-0.537673452646884,-0.919034693887985,-0.628473565543888,-0.796903780355733,-0.377742697770674,-0.994541421649762,-0.603947791475422,-0.180999017262953,-0.871764283137487,-0.616708000098457,-0.749490097985623,-0.610865044536359,-0.558168987806657,-0.577999738695061,-0.856914467566699,-0.509785103707429,-0.750789632395379,-0.375369445454667,-0.657687756219572,-0.88053456904719,-0.48565920511689,-0.443532567079419,-0.852508131956142,-0.946969511297776,-0.610457930982348,-0.836332719552127,-0.150190501979471,-0.430299547312744,-0.682754975064726,-0.532506540887581,-0.157550231792726,-0.934872409515121,-0.891471755731016,-0.682425182991893,-0.921554359324866,-0.331975457664278,-0.423134801072731,-0.80502923474244,-0.196311615660751,-0.521552268452208,-0.388013060084847,-0.698411849544776,-0.42614587447157,-0.687146538355744,-0.287938100342156,-0.398155993865967,-0.85522354272987,-0.188731449548327,-0.836447318340716,-0.339237779915737,-0.261483711981383,-0.521250872570389,-0.801547117212305,-0.717447219747871,-0.272336300690418,-0.756779047308908,-0.899022590416879,-0.285061059532137,-0.260474018154403,-0.721478313693311,-0.665773733733056,-0.231973662322345,-0.954831736125662,-0.443992159136355,-0.652125891188733,-0.802489181364187,-0.492350811217295,-0.27056043955349,-0.480829437790299,-0.719766825520503,-0.559829007458173,-0.493469704364399,-0.747333858597863,-0.75518737497607,-0.838067306326164,-0.597115529483155,-0.776463684150891,-0.372092915412782,-0.922030600595595,-0.628908400833742,-0.180649753353937,-0.952669767289102,-0.6964862718257,-0.63307365248893,-0.41041885486275,-0.549092451690901,-0.715823198397813,-0.777515283484881],"y":[0.446267982592498,-0.00989128549876461,-0.356993526499175,0.128565173979855,0.779632247011594,0.673858809968896,0.366070340146593,0.164441839385087,0.00155821958029145,0.554231050610973,0.25540840356002,0.813948983767378,0.54420971563627,0.718207808892819,0.205910296985676,0.793266210142303,0.8121790910876,0.631396334392077,0.181410704344781,0.849577983699158,0.900402024281893,-0.0553608021694473,0.0492592363843829,0.871591789846615,0.00106484574697596,0.131245194491222,0.164283430436169,0.0961769723216093,0.0747004690221911,0.0360132280581411,0.893523270672743,0.831072455031178,0.671955604109667,0.449972334197387,0.955511674874619,0.114393404992551,0.192248880033231,0.51552637392339,0.75251693727554,0.956400423413183,0.883857481560076,0.554016041424482,-0.00437045327266006,0.896466304054356,0.816151295310315,0.49412407212016,0.625500718850465,0.151927852669385,0.99448332359095,0.422148701543584,0.942497546426518,0.606410847197596,0.61648628259157,0.122368586807448,0.0871517477125747,0.908539699693811,0.302760938292352,0.23578134153866,0.777500289277182,-0.0185538982780851,0.337861634523463,1,0.715697797061796,0.850483518981406,0.721407642711546,0.921745420047189,0.458386676907043,0.910077364216925,-0.0410214312894396,0.680248585383095,0.239345157764387,0.832192975222856,0.989397003230826,0.243377813670121,0.412721719367484,0.755761961965361,0.966859475293043,0.212282076355284,0.0452537739898935,0.0377751366217269,-0.0592311672449807,0.75607939016459,0.0766343632279343,0.0547585083355502,-0.135173799008079,-0.0608867710991843,-0.01014361817814,-0.573541499575126,-0.207786205790658,-0.931244404602673,0.0889346777676332,-0.980620806176333,-0.699367916395357,-0.483436075538327,0.0743327496055306,-0.673522828011369,-0.818200087753806,0.0314696284892413,-0.160539728063738,-0.635224370809153,0.0100351819966744,0.201286187996765,-0.24846823058193,-0.170816972422936,-0.489489695557386,-0.361350190381846,-0.0958317088418981,-0.247827310989523,-0.766989259938771,-0.113139519451635,-0.384652739229596,-0.991799826283748,-0.0243132812224804,0.198255197810398,-0.336733512134854,-0.656132992018267,-0.577969184432048,-0.561709795266159,-0.522180251853579,0.102790054663105,-0.188077569615723,0.0469593340049259,-0.887751393320022,0.0767739864196557,-0.749365847491406,-0.446337865734342,-0.862180984531653,-0.789778119620803,-0.374542853128163,-0.0549668000040892,-0.0755242691405387,-0.24139859370972,-0.0355529172127264,-0.710416794163673,-0.255058734614966,-0.823414797263034,-0.0153008424683163,-0.949422001826372,0.0612789657952846,-0.320919645739566,-0.611411725850036,-0.703502903772733,0.170533306058352,-0.600824430508958,-0.39006665247559,-0.277567009488533,-0.9148535392287,-0.773420944672567,-0.436944630819087,-0.431782836353675,-0.692283040088952,0.0129484870129235,-0.227409718836614,-0.84573615928255,-0.168584992936802,-0.474499392441493,-0.037562698559308,-0.970202326322143,-0.745335731180107,-0.287726452361414,-0.181210397594991,-0.655271300460385,0.0224571335916652,-0.344842056824436,-0.565305205187817,-0.433013858597474,-0.769675103837454,0.117081986824808,-0.175762214523239,-0.763608682121446,-0.774398621539213,-0.723471785354545,-0.365198801564836,-0.120304671162062,-0.783782568250071,-0.898930306060722,-0.623764634249777,-0.71803641094714,-0.0775130818499313,-0.557546036834425,-0.350048450584821,-0.296279385721697,-0.811351829255448,-0.671533612622304,-0.461177422738955,-0.635290010805902,0.177984051595999,0.104555954050694,0.0843104730185591,-0.994676726394655,-0.200571617798282,-0.533506358465529,-0.660376857109216,-0.899283310241966,-0.171924769706249,-0.327982704354375,-0.849557644780019,-0.641048407205517,-0.550342783967976,-0.283418312949452,-0.523546388694288,-0.0884886184892125,-0.495064605782678,-0.901632099773122,-0.624632893831642,-1,-0.408585047701423,-0.336222957324323,-0.585822330479638,-0.886207043436985,-0.471558301190537,-0.71760314776886,-0.736302945706013,-0.825424634051717,-0.528065344030441,-0.8904618708179,-0.957147493121831,-0.256178289959126,-0.554207667976971,-0.53417827841555,-0.39958346323287,-0.83198119943956,-0.645872128155536,-0.454336096913717,-0.864200875023674,-0.638001691473932,-0.494187330749149,-0.00828184949913335,-0.703578515314933,0.130855537184705,-0.763481074004057,-0.83091411829367,-0.398385362038246,-0.635363597381096,-0.8317042725397,-0.856747202962649,0.141515632519341,-0.574479521360684,-0.662007777367173,-0.818703618752797,-0.837183066923048,0.141603646975309,-0.982172670016704,-0.701666711028764,-0.224549740989955,-0.954287795353389,-0.0797771287663787,-0.119322111536777,-0.570850570970511,-0.923415908542943,0.017043389735613,0.184363141354524,-0.114728234313654,-0.770544799359861,-0.531165453187656,-0.907003317939566,-0.344589284092262,-0.105077905135564,-0.00818235649383503,-0.742168871797902,-0.256094893641249,-0.935543673230418,-0.452127105272159,-0.443369673273696]},"edges":{"from":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"to":[67,48,46,68,28,30,20,73,9,22,31,65,12,21,72,59,52,8,18,39,74,40,55,7,34,53,4,82,5,58,77,43,32,19,37,66,54,51,29,25,50,56,71,78,63,70,24,41,47,36,17,76,16,23,62,49,6,45,80,57,81,60,61,26,10,15,75,38,27,35,33,79,83,64,42,69,11,3,14,44,13,86,85,58,81,84,87,146,241,257,208,92,48,28,238,112,242,30,116,118,236,182,180,124,132,121,206,103,9,102,120,131,91,22,159,160,229,162,154,231,133,148,125,93,8,262,139,192,140,173,195,252,74,213,214,172,217,55,253,152,193,119,117,4,210,183,144,151,190,149,255,168,221,240,43,247,96,239,122,201,220,141,19,251,136,261,186,167,37,202,171,129,54,207,258,29,137,25,145,113,90,127,100,94,215,212,1,71,107,123,115,78,234,95,184,105,174,204,197,101,142,223,254,216,155,177,211,263,98,97,256,166,264,109,36,138,114,128,130,191,99,260,165,23,170,147,110,156,222,181,80,161,237,230,169,81,203,235,60,26,126,179,15,164,178,27,194,205,243,157,150,259,79,225,153,143,187,248,232,176,175,108,83,228,226,196,224,88,245,135,244,69,89,106,249,219,246,11,233,189,198,250,158,199,218,188,185,104,134,227,163,200,209,111],"peso":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]},"nodesToDataframe":true,"edgesToDataframe":true,"options":{"width":"100%","height":"100%","nodes":{"shape":"dot","physics":false,"color":{"background":"#5DBAC3","border":"#01636D"}},"manipulation":{"enabled":false},"edges":{"smooth":false,"color":{"color":"grey","highlight":"#014D54"}},"physics":{"stabilization":false}},"groups":null,"width":null,"height":null,"idselection":{"enabled":false,"style":"width: 150px; height: 26px","useLabels":true,"main":"Select by id"},"byselection":{"enabled":false,"style":"width: 150px; height: 26px","multiple":false,"hideColor":"rgba(200,200,200,0.5)","highlight":false},"main":null,"submain":null,"footer":null,"background":"rgba(0, 0, 0, 0)","igraphlayout":{"type":"square"},"highlight":{"enabled":true,"hoverNearest":false,"degree":1,"algorithm":"all","hideColor":"rgba(200,200,200,0.5)","labelOnly":true},"collapse":{"enabled":false,"fit":false,"resetHighlight":true,"clusterOptions":null,"keepCoord":true,"labelSuffix":"(cluster)"}},"evals":[],"jsHooks":[]}</script>
+
+]
+
+.pull-right[
+
+Se pueden hacer análisis de grafos para desarrollar proyectos de Organizational Network Analysis.
+
+En este sencillo ejemplo, estamos analizando las conecciones de LinkedIn de 3 profesores de People Analytics, para detectar los Data Scientists que tenemos en común. Este análisis se puede usar para desarrollar un programa de referidos. 🤯
+
+]
+
+---
+## Text Mining
+
+Se puede analizar el texto de encuestas, curriculum vitaes, y opiniones de sitios como Glassdoor. Este es un ejemplo de una encuesta sobre Home Office del año pasado.
+
+.pull-left[
+&lt;img src="index_files/figure-html/tm1-1.png" width="70%" /&gt;
+]
+
+.pull-right[
+<div id="htmlwidget-391835d89f0f52efee05" style="width:70%;height:504px;" class="wordcloud2 html-widget"></div>
+<script type="application/json" data-for="htmlwidget-391835d89f0f52efee05">{"x":{"word":["empresas","creo","productividad","muchas","teletrabajo","trabajar","modalidad","cuenta","forma","objetivos","puede","tener","casa","herramientas","oficina","situación","costos","muchos","cambiar","empleado","equipo","manera","mayor","pandemia","personas","remoto","tenían","trabajando","cambio","dar","demostrar","día","empresa","experiencia","formas","igual","lugar","mucho","necesario","necesidad","oportunidad","posible","resultados","ser","tareas","casos","conectados","cosas","cultura","dudas","empleador","existía","hacer","lado","lograr","mantener","mejor","metodología","misma","mucha","posibilidad","procesos","recursos","seguir","trabaja","vamos","ver","vida"],"freq":[21,19,16,14,12,12,9,8,8,8,8,8,7,7,7,7,6,6,5,5,5,5,5,5,5,5,5,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3],"fontFamily":"Segoe UI","fontWeight":"bold","color":["#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe","#4445f8","#7563fa","#9881fc","#b59ffe"],"minSize":0,"weightFactor":5.14285714285714,"backgroundColor":"white","gridSize":0,"minRotation":-0.785398163397448,"maxRotation":0.785398163397448,"shuffle":true,"rotateRatio":0.4,"shape":"circle","ellipticity":0.65,"figBase64":null,"hover":null},"evals":[],"jsHooks":{"render":[{"code":"function(el,x){\n                        console.log(123);\n                        if(!iii){\n                          window.location.reload();\n                          iii = False;\n\n                        }\n  }","data":null}]}}</script>
+
+]
+
+---
+## Aplicaciones Interactivas con Shiny
+
+.left-column[
+&lt;img src="https://www.shinyapps.dev/package/shiny/featured.png" /&gt;
+]
+
+.right-column[
+**Shiny** te permite construir aplicaciones interactivas que otorgan a los usuarios finales de los datos la posibilidad de interactuar, navegar y explorar los datos, permitiéndoles hallar sus propios insights por sus propios medios.
+
+Pueden chequear este ejemplo desarrollado por [Edward Parker](https://www.lshtm.ac.uk/aboutus/people/parker.edward) y su [Covid-19 Tracker](https://vac-lshtm.shinyapps.io/ncov_tracker/?_ga=2.199884654.193509739.1617140093-220020266.1617140093).
+
+&lt;img src="Archivos/shiny_app_example.png" width="70%" /&gt;
+]
+
+---
+## Gráficos
+
+En R podés hacer cualquier tipo de gráfico. 
+
+&lt;img src="index_files/figure-html/plot1-1.png" width="33%" /&gt;&lt;img src="index_files/figure-html/plot1-2.png" width="33%" /&gt;&lt;img src="index_files/figure-html/plot1-3.png" width="33%" /&gt;
+
+---
+## Gráficos
+
+En R podés hacer cualquier tipo de gráfico. Visita el repositorio de GitHub de [Ariadna Angulo Brunet](https://github.com/AnguloB/datosdemiercoles) y revisa su trabajo del desafío `#30DiasDeGráficos`.
+.center[
+
+&lt;img src="index_files/figure-html/plot2-1.png" width="40%" /&gt;
+
+]
+---
+class: inverse, center, middle
+# Literalmente,
+
+--
+
+### En R podés hacer
+
+--
+
+### cualquier tipo de gráfico
+
+---
+## En serio... cualquier tipo de gráfico
+
+Créditos: Ashten Anthony: [Guy checking out a girl meme](https://github.com/ashten28/my_ggplots/tree/master/guy_checking_out_a_girl_meme)
+
+
+&lt;img src="index_files/figure-html/meme-1.png" width="504" /&gt;
+
+
+
+---
+background-color: #f2f5f7
+
+.pull-left[
+&lt;img src="https://www.yucatanalamano.com/wp-content/uploads/2021/03/D0XyhF-WoAIW8vj.jpg" /&gt;
+]
+
+.pull-right[
+# Codear en R para RH: &lt;br&gt; Una Breve Guía para Aprender a Programar y Vivir Para Contarlo
+]
+
+
+---
+## El perfil de un Data Scientist
+
+.center[
+&lt;img src="https://i.ytimg.com/vi/r2I3IDKwyMw/maxresdefault.jpg" width="80%"/&gt;
+]
+
+---
+## Codear puede ser duro
+
+.pull-left[
+Aprender a programar es como practicar un nuevo deporte cuando tenés 40 años y han pasado décadas desde la última vez que hacías alguna actividad física.
+
+
+Hay que saber que va a ser doloroso, confuso, feo y frustrante.
+
+Pero, también puede ser divertido. Tenes que encontrar la forma de lograr victorias rápidas que te hagan sentir que estás cosechando logros.
+
+Y cuando tu primer código funcione, te vas a sentir así: 
+]
+
+.pull-right[
+&lt;img src="https://movie-fanatic-res.cloudinary.com/iu/s--jWnmUCCb--/t_full/cs_srgb,f_auto,fl_strip_profile.lossy,q_auto:420/v1364991045/run-fatboy-run.jpg" /&gt;
+]
+
+---
+background-color: #696969
+class: center, middle
+
+&lt;img src="https://media.giphy.com/media/fSSGX7IHcqlDYwVYsH/giphy.gif" width="90%"/&gt;
+
+
+---
+# R es mucho más que Estadística
+
+R fue concebido como un lenguaje para análisis estadístico... pero hoy en día es mucho más que eso. R tiene muchos paquetes y sus capacidades se han expandido tanto que puede hacer nuestro trabajo cotidiano mucho más fácil.
+
+--
+
+En R podés:
+
+* Unir datos de múltiples fuentes 🤹
+
+--
+
+* Automatizar reportes con `R Markdown` 🆒
+
+--
+
+* Hacer presentaciones, como la que estás viendo, con el paquete `xaringan` 👍
+
+--
+
+* 💹 Hacer tableros de comando con el paquete `flexdashboard`.
+
+
+--
+
+* 👩‍🎤 Compartir tu trabajo y hacerlo reproducible. 
+
+--
+
+* Escribir libros 📖, crear blogs 🗯... y mucho más
+
+---
+## La ventaja de empezar de cero
+
+.pull-left[
+.right[
+&lt;img src="https://m.media-amazon.com/images/I/41PZRSHF-NL.jpg" /&gt;
+]
+]
+
+
+.pull-right[
+Peter Thiel, con su analogía de ir *de cero a uno*, señala que cuando creas algo nuevo y disruptivo, que soluciona un problema que nadie antes había pensado, te estás moviendo de cero a uno.
+
+Si bien no vas a reinventar la rueda al usar R en tu organización, cuando crees tu primer análisis, tu primer informe, o una presentación sencilla usando R, **algo puede cambiar** en tu organización.
+
+La principal ventaja de empezar algo desde cero es que tenés mucho espacio para introducir mejoras, y cada pequeño cambio que lleves a cabo tendrá un gran impacto.
+]
+
+---
+# 4 tips para aprender a codear
+
+No hay recetas mágicas para aprender a codear: vas a necesitar dedicar tiempo, y requiere mucha práctica, paciencia y persistencia. Sin embargo considero que estos consejos te pueden ser muy útiles:
+
+--
+* 🤡 Haz proyectos divertidos.
+
+--
+* 🏋 Busca apoyo en las comunidades de R.
+
+--
+* 📆 Fija fechas de entrega.
+
+--
+* 🐶 Se amable contigo.
+
+---
+
+.left-column[
+
+### **Haz proyectos divertidos**
+
+### Busca apoyo en las comunidades de R
+
+### Fija fechas de entrega
+
+### Se amable contigo
+
+
+]
+
+.right-column[
+[Ryan Timpe](https://www.linkedin.com/in/ryantimpe/) en [su presentación](https://www.rstudio.com/resources/rstudioconf-2020/learning-r-with-humorous-side-projects/) en la `RStudio::conf` nos muestra distintas... estrategias para aprender a programar y divertirnos al mismo tiempo.
+
+Además, hay mucho paquetes y fuentes de datos para jugar, que son entretenidos y estimulantes, y que te permitirán aprender algo de Ciencia de Datos, sin la sensación de estar haciendo algo extremadamente difícil.
+]
+
+---
+### Algunos ejemplos
+
+.pull-left[Usaremos una encuesta de Sueldos de RH de Argentina:
+
+
+```r
+library(tidyverse)
+
+# Carga de datos
+rh &lt;- read_delim("data/rh_ar.csv", delim = ";")
+
+# Limpiamos los datos y calculamos el sueldo promedio por posición
+d1 &lt;- rh %&gt;% 
+  filter(between(sueldo_bruto,
+                 20000,
+                 200000), # Filtramos salarios
+         puesto %in% c("Analista", "HRBP", "Jefe", "Gerente")) %&gt;% # Filtramos puestos
+  mutate(puesto = factor(puesto, 
+                         levels = c("Analista", "HRBP", "Jefe", "Gerente"))) %&gt;% # Ordena puestos
+  group_by(puesto) %&gt;% 
+  summarise(sueldo_promedio = mean(sueldo_bruto)) 
+# Just a regular plot
+p1 &lt;- ggplot(d1, aes(x = puesto, y = sueldo_promedio, fill = puesto)) +
+  geom_col() +
+  theme_minimal()
+p1 + ggtitle("Sueldo Promedio por Posición")
+```
+
+&lt;img src="index_files/figure-html/sg1-1.png" width="504" /&gt;
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-1-1.png" width="504" /&gt;
+
+]
+
+---
+## Juguemos con algunas paletas de colores 
+
+.pull-left[
+
+```r
+library(metallicaRt) # Cargar paquete              
+# Elige paleta de colores
+*fuel &lt;- metalli_palette("fuel")
+# Plot
+p1 +
+* scale_fill_manual(values = fuel) +
+  labs(title = "Presentando: paquete metallicaRt por John MacKintosh",
+       caption = "GitHub: https://github.com/johnmackintosh/metallicaRt")
+```
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-2-1.png" width="504" /&gt;
+]
+
+---
+## Juguemos con algunas paletas de colores 
+
+.pull-left[
+
+```r
+library(gameofthrones) # Cargar paquete
+# Plot
+p1 +
+* scale_fill_got(discrete = T, option = "Stark2") +
+  labs(title = "Presentando: paquete gameofthrones por Alejandro Jiménez",
+       caption = "GitHub: https://github.com/aljrico/gameofthrones")
+```
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-3-1.png" width="504" /&gt;
+
+]
+
+---
+## Convirtamos los gráficos a ladrillos de Lego
+
+.pull-left[
+Ryan Timpe además desarrolló el paquete `brickr` que permite que los gráficos emulen a los ladrillos de Lego.
+
+```r
+library(brickr)
+
+# Guardar el gráfico en un archivo png
+ggsave(p1, filename = "p1.png")
+
+# Cargar la imagen en R
+mosaic1 &lt;- png::readPNG("p1.png") %&gt;% 
+  image_to_mosaic()
+
+# Transformar el gráfico
+mosaic1 %&gt;% build_mosaic()
+```
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" width="504" /&gt;
+
+]
+---
+## Hagamos algo más divertido
+
+.pull-left[
+&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" width="504" /&gt;
+
+]
+
+
+```r
+library(ggbernie) # Cargar paquete
+# Plot
+ggplot(d1) +
+* geom_bernie(aes(x = puesto, y = sueldo_promedio),
+*             bernie = "sitting") +
+  labs(title = "Presentando: ggbernie por R-CoderDotCom",
+       caption = "GitHub: https://github.com/R-CoderDotCom/ggbernie")
+```
+
+---
+.left-column[
+
+### Haz proyectos divertidos
+
+### **Busca apoyo en las comunidades de R**
+
+### Fija fechas de entrega
+
+### Se amable contigo
+
+
+]
+
+.right-column[
+Algo **impresionante** de R son los Grupos de Usuarios de R (RUG por sus siglas en inglés) y las comunidades que hay en todas partes del mundo.
+
+Hay decenas de RUGs y de grupos de R-Ladies que organizan talleres, brindan apoyo (con frecuencia más allá de R), escriben libros y los comparten de manera abierta y gratuita. Traducen cheatsheets, se preocupan por ser inclusivos, organizan meetups y conferencias, comparten contenido, y lo más importante, te hacen saber que no estás solo o sola en este viaje.
+
+En la misma línea hemos creado para los profesionales de RRHH de habla hispana nuestra propia comunidad: el **[Club de R para RRHH](https://linktr.ee/r4hrclub)**.
+
+También puedes encontrar recursos gratuitos dirigidos a los profesionales de People Analytics y RRHH, por ejemplo los libros (en inglés)  de [Hendrik Feddersen](https://www.linkedin.com/in/hendrikfeddersen/)'s *["HR Analytics in R"](https://hranalyticslive.netlify.app/index.html)*, y el de [Keith McNulty](https://www.linkedin.com/in/keith-mcnulty/)'s *["Handbook of Regression Modeling in People Analytics"](http://peopleanalytics-regression-book.org/)*. 
+
+Podés encontrar a todos los Grupos de Usuarios de R de todo el mundo en [este link](https://benubah.github.io/r-community-explorer/rugs.html) 🎈
+]
+
+---
+### #TidyTuesday
+
+*Tidy Tuesday* es una iniciativa organizada por la comunidad global de R, en la cual cada martes, comparten un dataset para que cualquiera pueda practicar y compartir su trabajo. Busca el hashtag `#TidyTuesday` en Twitter para saber más al respecto.
+
+Las comunidades de Latinoamérica y España desarrollaron un proyecto similar que pueden encontrar con el hashtag `#DatosDeMiercoles`.
+
+Estas iniciativas son muy útiles porque te permiten ver como alguien hace un análisis y luego replicarlo con tus propios datos.
+
+Veamos un ejemplo.
+
+---
+
+### Vacaciones y Vino
+
+Imagina que viajas de vacaciones hacia Argentina y que quieres visitar bodegas de vino en Mendoza, la provincia productora de vino por excelencia del país, para probar el mejor vino Malbec.
+
+Así que exploraremos el archivo [Wine Ratings Dataset](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-05-28) para encontrar dónde se producen los mejores Malbecs de la provincia.
+
+¡Salud! 🍷
+
+.center[
+&lt;img src="https://news.agrofystatic.com/vino_malbec_agrofy_news.jpg?d=620x375", width="40%" /&gt;
+]
+---
+
+### Vacaciones y Vino
+
+.pull-left[ Carguemos los datos, y filtremos por `Mendoza Province`.
+
+
+```r
+library(tidyverse)
+# Carga de datos
+wine_ratings &lt;- read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2019/2019-05-28/winemag-data-130k-v2.csv")
+wine_ar &lt;- wine_ratings %&gt;% 
+  filter(province == "Mendoza Province") 
+dim(wine_ar) # Explore dataset
+```
+
+```
+## [1] 3264   14
+```
+
+]
+
+--
+
+.pull-right[
+¡Hay muchos productores de vino! 😱
+
+
+```r
+wine_ar %&gt;% 
+  summarise(n_winery = unique(winery))
+```
+
+```
+## # A tibble: 455 x 1
+##    n_winery          
+##    &lt;chr&gt;             
+##  1 Gaucho Andino     
+##  2 Mendel            
+##  3 Andean Sky        
+##  4 Cueva de las Manos
+##  5 Algodon           
+##  6 Kaiken            
+##  7 O. Fournier       
+##  8 Sottano           
+##  9 Viña Cobos        
+## 10 Finca Sophenia    
+## # ... with 445 more rows
+```
+
+]
+
+---
+### Vacaciones y Vino
+
+.pull-left[
+Filtremos los datos por `Malbec` y veamos las regiones donde podemos encontrar los vinos con los puntajes más alto.
+
+
+```r
+wine_ar %&gt;% 
+  filter(variety == "Malbec") %&gt;% 
+  group_by(region_1) %&gt;% 
+  summarise(avg_points = mean(points)) %&gt;% 
+  arrange(-avg_points)
+```
+
+]
+
+.pull-right[
+
+```
+## # A tibble: 14 x 2
+##    region_1         avg_points
+##    &lt;chr&gt;                 &lt;dbl&gt;
+##  1 Perdriel               90.5
+##  2 La Consulta            90.1
+##  3 Valle de Uco           89.5
+##  4 Agrelo                 89.3
+##  5 Luján de Cuyo          88.8
+##  6 Uco Valley             88.4
+##  7 San Carlos             88.3
+##  8 Tupungato              88.2
+##  9 Medrano                88  
+## 10 Vista Flores           87.8
+## 11 &lt;NA&gt;                   87.5
+## 12 Mendoza                87.1
+## 13 Maipú                  87  
+## 14 Altos de Mendoza       86
+```
+
+]
+
+---
+### Vacaciones y Vino
+
+.pull-left[
+Ahora, podemos tomar una decisión:
+
+
+```r
+wine_ar %&gt;% 
+  filter(variety == "Malbec",
+         region_1 == "Perdriel") %&gt;% 
+  ggplot(aes(x = points, y = price, color = winery)) +
+  geom_point(size = 6, alpha = 0.6, position = "jitter") +
+  ggthemes::scale_color_colorblind() +
+  theme_minimal()
+```
+
+]
+
+.pull-right[
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" width="504" /&gt;
+
+]
+
+---
+### Ahora úsalo con tus propios datos
+
+Con un enfoque similar, podemos analizar los puntajes de los programas de capacitación de una empresa, y realizar un ránking de los mejores proveedores que más alineados están con los objetivos del área.
+
+Básicamente, reproduciremos el proyecto *Vacaciones y Vino* pero con nuestros propios datos.
+
+--
+
+Usaré un divertido paquete llamado `noah`, desarrollado por [Tobias Busch](https://teebusch.github.io/noah/), para anonimizar los nombres de los proveedores.
+
+.right[
+&lt;img src="https://teebusch.github.io/noah/reference/figures/logo.png" /&gt;
+]
+
+---
+### Ranking de Proveedores de Capacitación
+
+.pull-left[En este paso, cargamos los datos, anonimizamos los datos de los proveedores, y calculamos el puntaje promedio de alineación para cada proveedor.
+
+```r
+library(noah)
+# Carga de datos
+training_ratings &lt;- read_delim("data/training_ratings.csv", delim = ";")
+# Anonimizamos datos y calculamos la alineación promedio
+(training_analysis &lt;- training_ratings %&gt;% 
+    mutate(pseudo_supplier = pseudonymize(supplier)) %&gt;% 
+    group_by(pseudo_supplier) %&gt;% 
+    summarise(alignment = mean(area_goals_alignment))) 
+```
+]
+
+.pull-right[
+
+```
+## # A tibble: 16 x 2
+##    pseudo_supplier       alignment
+##    &lt;chr&gt;                     &lt;dbl&gt;
+##  1 Blue Newt                 0.7  
+##  2 Cloudy Lizard             0.833
+##  3 Didactic Ptarmigan        0.575
+##  4 Innate Porcupine          0.6  
+##  5 Kaput Shrew               0.562
+##  6 Makeshift Bear            0.7  
+##  7 Mushy Puffin              0.633
+##  8 Pleasant Cricket          0.583
+##  9 Puzzled Octopus           0.3  
+## 10 Regular Fennec            0.614
+## 11 Right Serval              0.457
+## 12 Selective Grasshopper     0.375
+## 13 Snotty Needlefish         0.433
+## 14 Special Ant               0.6  
+## 15 Tenuous Dhole             0.5  
+## 16 True Anteater             0.4
+```
+]
+---
+### Ranking de Proveedores de Capacitación
+
+.pull-left[
+&lt;img src="index_files/figure-html/unnamed-chunk-9-1.png" width="504" /&gt;
+
+]
+
+.pull-right[
+Y ahora hacemos el gráfico del ranking.
+
+```r
+ggplot(training_analysis, aes(x = alignment, 
+                              y = reorder(pseudo_supplier, alignment))) + 
+  geom_col(fill = "#d6dbdf") +
+  labs(title = "Ranking de Proveedores de Capacitación \n por Promedio de Alineación con Objetivos",
+       x = "% Alineación",
+       y = "Proveedor",
+       caption = "Puntajes generados aleatoriamente") +
+  theme_minimal() +
+  geom_vline(xintercept = 0.6,
+             color = "red",
+             linetype = 2)
+```
+
+]
+
+---
+.left-column[
+
+### Haz proyectos divertidos
+
+### Busca apoyo en las comunidades de R
+
+### **Fija fechas de entrega**
+
+### **Se amable contigo**
+
+
+
+]
+
+.right-column[
+Algo que me sirve mucho es **fijar fechas de entrega**. Saber que tengo que entregar un análisis en una fecha específica, hace que siempre encuentre la forma de que las cosas funcionen.
+]
+
+--
+
+.right-column[Finalmente, si estás empezando a codear y nada parece funcionar, tienes que saber que todos pasamos por lo mismo. Aprender a programar y usar R en tu trabajo requiere de tiempo, paciencia y de consistencia.
+]
+--
+.right-column[
+Y si sientes que nada funciona, pide ayuda en una comunidad de R: busca una comunidad o simplemente crea una. No necesitas ser un usuario experto para hacerlo.
+]
+
+--
+.right-column[
+No tengas miedo de abandonar un curso si no entiendes nada. Busca profesores, cursos y fuentes que mejor se adapten a tus necesidades y conocimientos.]
+
+--
+.right-column[
+Y recuerda que no necesitas ser un genio o una genia para usar R. Podés usarlo para tareas simples (o no tan simples) como unir datos de múltiples archivos de Excel, o hacer una presentación para mostrar resultados de una manera mucho más precisa y rápida.
+
+]
+
+---
+class: inverse middle center
+# Conclusiones
+
+---
+# Conclusiones
+
+* R es un viaje de ida. Te puede llevar tan lejos como imagines.
+
+--
+
+* Busca comunidades afines a tus intereses que impulsen tus habilidades y que te levanten cada vez que necesites ayuda.
+
+--
+
+* Comparte lo que sabes hacer. Vas a obtener feedback para mejorar tu trabajo, y puedes empoderar a alguien para que aprenda de vos.
+
+
+
+---
+# Conclusiones
+
+.pull-left[
+&lt;img src="Archivos/principio.png" width="70%"/&gt;
+
+.bottom[Ilustración por Allison Horst.]
+]
+
+.pull-right[
+
+&gt; *"Aprender es adquirir poder (y por eso da mucho trabajo), pero es un poder que no se gasta, y que una vez adquirido nadie puede quitármelo.*
+&gt; *Porque así es el conocimiento: no se gasta con el uso y no es expropiable.*
+&gt; *Lo que significa que cuando enseñamos, cuando compartimos nuestros conocimientos, cuando publicamos nuestros materiales de forma libre, reusable y en nuestro idioma, **estamos compartiendo poder**."*
+&gt; [Yanina Bellini Saibene](https://twitter.com/yabellini). Researcher at INTA. Global Chair of LatinR_Conf.
+
+]
+
+---
+# Let's connect!
+
+.pull-left[
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M326.612 185.391c59.747 59.809 58.927 155.698.36 214.59-.11.12-.24.25-.36.37l-67.2 67.2c-59.27 59.27-155.699 59.262-214.96 0-59.27-59.26-59.27-155.7 0-214.96l37.106-37.106c9.84-9.84 26.786-3.3 27.294 10.606.648 17.722 3.826 35.527 9.69 52.721 1.986 5.822.567 12.262-3.783 16.612l-13.087 13.087c-28.026 28.026-28.905 73.66-1.155 101.96 28.024 28.579 74.086 28.749 102.325.51l67.2-67.19c28.191-28.191 28.073-73.757 0-101.83-3.701-3.694-7.429-6.564-10.341-8.569a16.037 16.037 0 0 1-6.947-12.606c-.396-10.567 3.348-21.456 11.698-29.806l21.054-21.055c5.521-5.521 14.182-6.199 20.584-1.731a152.482 152.482 0 0 1 20.522 17.197zM467.547 44.449c-59.261-59.262-155.69-59.27-214.96 0l-67.2 67.2c-.12.12-.25.25-.36.37-58.566 58.892-59.387 154.781.36 214.59a152.454 152.454 0 0 0 20.521 17.196c6.402 4.468 15.064 3.789 20.584-1.731l21.054-21.055c8.35-8.35 12.094-19.239 11.698-29.806a16.037 16.037 0 0 0-6.947-12.606c-2.912-2.005-6.64-4.875-10.341-8.569-28.073-28.073-28.191-73.639 0-101.83l67.2-67.19c28.239-28.239 74.3-28.069 102.325.51 27.75 28.3 26.872 73.934-1.155 101.96l-13.087 13.087c-4.35 4.35-5.769 10.79-3.783 16.612 5.864 17.194 9.042 34.999 9.69 52.721.509 13.906 17.454 20.446 27.294 10.606l37.106-37.106c59.271-59.259 59.271-155.699.001-214.959z"&gt;&lt;/path&gt;&lt;/svg&gt; Presentación: [bit.ly/paw21-es-r4hr](http://bit.ly/paw21-es-r4hr)
+
+&lt;svg viewBox="0 0 448 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"&gt;&lt;/path&gt;&lt;/svg&gt; [LinkedIn](https://www.linkedin.com/in/sergiogarciamora/?locale=en_US)
+
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M459.37 151.716c.325 4.548.325 9.097.325 13.645 0 138.72-105.583 298.558-298.558 298.558-59.452 0-114.68-17.219-161.137-47.106 8.447.974 16.568 1.299 25.34 1.299 49.055 0 94.213-16.568 130.274-44.832-46.132-.975-84.792-31.188-98.112-72.772 6.498.974 12.995 1.624 19.818 1.624 9.421 0 18.843-1.3 27.614-3.573-48.081-9.747-84.143-51.98-84.143-102.985v-1.299c13.969 7.797 30.214 12.67 47.431 13.319-28.264-18.843-46.781-51.005-46.781-87.391 0-19.492 5.197-37.36 14.294-52.954 51.655 63.675 129.3 105.258 216.365 109.807-1.624-7.797-2.599-15.918-2.599-24.04 0-57.828 46.782-104.934 104.934-104.934 30.213 0 57.502 12.67 76.67 33.137 23.715-4.548 46.456-13.32 66.599-25.34-7.798 24.366-24.366 44.833-46.132 57.827 21.117-2.273 41.584-8.122 60.426-16.243-14.292 20.791-32.161 39.308-52.628 54.253z"&gt;&lt;/path&gt;&lt;/svg&gt; [Twitter](https://twitter.com/sergiogarciamor)
+
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M440 6.5L24 246.4c-34.4 19.9-31.1 70.8 5.7 85.9L144 379.6V464c0 46.4 59.2 65.5 86.6 28.6l43.8-59.1 111.9 46.2c5.9 2.4 12.1 3.6 18.3 3.6 8.2 0 16.3-2.1 23.6-6.2 12.8-7.2 21.6-20 23.9-34.5l59.4-387.2c6.1-40.1-36.9-68.8-71.5-48.9zM192 464v-64.6l36.6 15.1L192 464zm212.6-28.7l-153.8-63.5L391 169.5c10.7-15.5-9.5-33.5-23.7-21.2L155.8 332.6 48 288 464 48l-59.4 387.3z"&gt;&lt;/path&gt;&lt;/svg&gt; [Telegram](https://t.me/SergioGarciaMora)
+
+&lt;svg viewBox="0 0 512 512" style="height:1em;position:relative;display:inline-block;top:.1em;" xmlns="http://www.w3.org/2000/svg"&gt;  &lt;path d="M464 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm0 48v40.805c-22.422 18.259-58.168 46.651-134.587 106.49-16.841 13.247-50.201 45.072-73.413 44.701-23.208.375-56.579-31.459-73.413-44.701C106.18 199.465 70.425 171.067 48 152.805V112h416zM48 400V214.398c22.914 18.251 55.409 43.862 104.938 82.646 21.857 17.205 60.134 55.186 103.062 54.955 42.717.231 80.509-37.199 103.053-54.947 49.528-38.783 82.032-64.401 104.947-82.653V400H48z"&gt;&lt;/path&gt;&lt;/svg&gt; [sergio@d4r.com](mailto:sergio@d4hr.com)
+
+]
+
+.pull-right[
+&lt;img src="https://media.giphy.com/media/fWfowxJtHySJ0SGCgN/giphy.gif" /&gt;
+]
+
+---
+class: inverse, middle, center
+# Fuentes y créditos
+
+---
+# Fuentes
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"ratio": "16:9",
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
